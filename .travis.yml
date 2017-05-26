@@ -8,7 +8,7 @@ cache:
   - $HOME/arcus-memcached
 
 before_install:
-  - sudo apt-get install -qq build-essential autoconf automake libtool libcppunit-dev libevent-dev
+  - sudo apt-get install -qq build-essential autoconf automake libtool libcppunit-dev libevent-dev libcloog-ppl0
   - bash install-arcus-memcached.sh develop
 
 script:
