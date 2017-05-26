@@ -33,6 +33,7 @@ then
   cd $HOME/arcus-memcached
   git checkout $TARGET_SERVER_BR
   git pull
+  ./config/autorun.sh
   ./configure
   make
 
