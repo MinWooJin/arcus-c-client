@@ -7,24 +7,6 @@ if [ ! -z "$1" ]; then
   TARGET_SERVER_BR=$1
 fi
 
-checkBranch() {
-  git remote update
-  UPSTREAM=${1:-'@{u}'}
-  LOCAL=$(git rev-parse @)
-  REMOTE=$(git rev-parse "$UPSTREAM")
-  BASE=$(git merge-base @ "$UPSTREAM")
-
-  if [ $LOCAL = $REMOTE ]; then
-    echo "UPTODATE"
-  elif [ $LOCAL = $BASE ]; then
-    echo "NEEDTOPULL"
-  elif [ $REMOTE = $BASE ]; then
-    echo "NEEDTOPUSH"
-  else
-    echo "DIVERGED"
-  fi
-}
-
 # check to see if arcus-memcached folder is empty
 if [ ! -x "$HOME/arcus-memcached/memcached" ]
 then
