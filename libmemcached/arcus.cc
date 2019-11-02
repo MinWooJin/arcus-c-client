@@ -87,7 +87,10 @@ static inline void do_arcus_update_cachelist(memcached_st *mc,
 static inline int do_add_server_to_cachelist(struct arcus_zk_st *zkinfo, char *nodename,
                                              struct memcached_server_info *serverinfo);
 #ifdef UPDATE_HASH_RING_OF_FETCHED_MC
+#ifdef REPOPULATE_TEST
+#else
 static inline void do_update_serverlist_with_master(memcached_st *ptr, memcached_st *master);
+#endif
 #endif
 
 pthread_mutex_t lock_arcus = PTHREAD_MUTEX_INITIALIZER;
@@ -662,7 +665,11 @@ void arcus_server_check_for_update(memcached_st *ptr)
         pthread_mutex_lock(&lock_arcus);
         {
           memcached_pool_lock(arcus->pool);
+#ifdef REPOPULATE_TEST
+          arcus_update_serverlist_with_master(ptr, master);
+#else
           do_update_serverlist_with_master(ptr, master);
+#endif
           memcached_pool_unlock(arcus->pool);
         }
         pthread_mutex_unlock(&lock_arcus);
@@ -1098,7 +1105,11 @@ static inline void do_arcus_zk_update_cachelist_by_string(memcached_st *mc,
 }
 
 #ifdef UPDATE_HASH_RING_OF_FETCHED_MC
+#ifdef REPOPULATE_TEST
+void arcus_update_serverlist_with_master(memcached_st *ptr, memcached_st *master)
+#else
 static inline void do_update_serverlist_with_master(memcached_st *ptr, memcached_st *master)
+#endif
 {
   /* pool locked */
   uint32_t servercount= 0;

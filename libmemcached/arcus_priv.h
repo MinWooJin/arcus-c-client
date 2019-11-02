@@ -98,6 +98,10 @@ struct memcached_server_info
 
 LIBMEMCACHED_API
 void arcus_server_check_for_update(memcached_st *ptr);
+#ifdef REPOPULATE_TEST
+LIBMEMCACHED_API
+void arcus_update_serverlist_with_master(memcached_st *ptr, memcached_st *master);
+#endif
 
 #else /* LIBMEMCACHED_WITH_ZK_INTEGRATION */
 
@@ -105,6 +109,13 @@ static inline void arcus_server_check_for_update(memcached_st *)
 {
   /* Nothing */
 }
+
+#ifdef REPOPULATE_TEST
+static inline void arcus_update_serverlist_with_master(memcached_st *, memcached_st *)
+{
+  /* Nothing */
+}
+#endif
 #endif
 
 #endif /* __LIBMEMCACHED_ARCUS_PRIV_H__ */

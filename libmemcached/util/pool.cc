@@ -578,6 +578,39 @@ memcached_return_t memcached_pool_repopulate(memcached_pool_st* pool)
     return MEMCACHED_IN_PROGRESS;
   }
 
+#ifdef REPOPULATE_TEST
+  if (pool->master->configure.ketama_version == -1) {
+    /* first pool repopulate, need memcached_clone of member mc */
+    pool->increment_ketama_version();
+    pool->increment_version();
+
+    /* update the clones */
+    for (int xx= 0; xx <= pool->top; ++xx)
+    {
+      memcached_st *memc;
+      if ((memc= memcached_clone(NULL, pool->master)))
+      {
+        memcached_free(pool->mc_pool[xx]);
+        pool->mc_pool[xx]= memc;
+        /* I'm not sure what to do in this case.. this would happen
+          if we fail to push the server list inside the client..
+          I should add a testcase for this, but I believe the following
+          would work, except that you would add a hole in the pool list..
+          in theory you could end up with an empty pool....
+        */
+      }
+    }
+  } else {
+    /* if not first pool rpopulate, only change serverlist & ketama info */
+    pool->increment_ketama_version();
+
+    /* update serverlist & ktama info */
+    for (int xx= 0; xx <= pool->top; ++xx)
+    {
+      arcus_update_serverlist_with_master(pool->mc_pool[xx], pool->master);
+    }
+  }
+#else
 #ifdef UPDATE_HASH_RING_OF_FETCHED_MC
   pool->increment_ketama_version();
 #else
@@ -600,6 +633,7 @@ memcached_return_t memcached_pool_repopulate(memcached_pool_st* pool)
       */
     }
   }
+#endif
 
   (void)pthread_mutex_unlock(&pool->mutex);
 
